@@ -6,6 +6,8 @@ namespace tmachine
 {
     void debugger::run()
     {
+        run_ = true;
+
         initscr();
 
         start_color();
@@ -23,7 +25,8 @@ namespace tmachine
         init();
         draw();
 
-        while (int ch = getch())
+        int ch;
+        while (run_ && (ch = getch()))
         {
             update(ch);
             draw();
@@ -56,6 +59,10 @@ namespace tmachine
             break;
         case KEY_END:
             vm_step(10000);
+            break;
+        case 'q':
+        case 'Q':
+            run_ = false;
             break;
         }
         getmaxyx(stdscr, height_, width_);

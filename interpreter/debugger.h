@@ -96,6 +96,7 @@ namespace tmachine
         int width_;
         int step_;
         std::string error_;
+        bool run_;
 
         void init();
         void update(int ch);
