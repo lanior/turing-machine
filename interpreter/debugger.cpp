@@ -76,7 +76,6 @@ namespace tmachine
             {
                 executed_commands_.push_back(&vm_.get_current_command());
 
-                bool result;
                 try
                 {
                     if (vm_.step()) step_++;
