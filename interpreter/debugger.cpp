@@ -199,7 +199,7 @@ namespace tmachine
 
     void source_window::init()
     {
-        wnd_ = newwin(debugger_.get_height(), 20, y_, x_);
+        wnd_ = newwin(debugger_.get_height() - y_ - 1, 20, y_, x_);
     }
 
     void source_window::draw()
@@ -225,7 +225,7 @@ namespace tmachine
 
     void trace_window::init()
     {
-        wnd_ = newwin(debugger_.get_height(), 20, y_, x_);
+        wnd_ = newwin(debugger_.get_height() - y_ - 1, 20, y_, x_);
     }
 
     void trace_window::draw()
