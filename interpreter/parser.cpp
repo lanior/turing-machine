@@ -40,7 +40,6 @@ namespace tmachine
     {
         std::string new_symbol, action_str;
         int state, new_state, line;
-        command_action action;
 
         line = token_.line;
         state = vm_.get_state_id(get_ident());
@@ -51,11 +50,31 @@ namespace tmachine
         new_symbol = get_ident();
         new_state = vm_.get_state_id(get_ident());
 
+        command_action action = CA_NONE;
+        bool breakpoint = false;
+
         action_str = get_ident();
-        if      (action_str == "S" || action_str == "s") action = CA_BREAK;
-        else if (action_str == "L" || action_str == "l") action = CA_MOVE_LEFT;
-        else if (action_str == "R" || action_str == "R") action = CA_MOVE_RIGHT;
-        else error("Unknown action");
+        for (size_t  i = 0; i < action_str.size(); i++)
+        {
+            switch (action_str[i])
+            {
+                case 's':
+                case 'S':
+                    action = CA_STOP; break;
+                case 'l':
+                case 'L':
+                    action = CA_MOVE_LEFT; break;
+                case 'r':
+                case 'R':
+                    action = CA_MOVE_RIGHT; break;
+                case 'b':
+                case 'B':
+                    breakpoint = true; break;
+                default:
+                    error("Unknown action");
+            }
+        }
+        if (action == CA_NONE) error("No action assigned");
 
         if (symbol.length() > 1 || new_symbol.length() > 1)
         {
@@ -71,6 +90,7 @@ namespace tmachine
         cmd.new_state = new_state;
         cmd.action = action;
         cmd.line = line;
+        cmd.breakpoint = breakpoint;
         cmd.defined = true;
     }
 

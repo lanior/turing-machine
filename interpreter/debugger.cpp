@@ -4,15 +4,36 @@
 
 namespace tmachine
 {
+    enum colors
+    {
+        COLOR_TEXT,
+        COLOR_ERROR,
+        COLOR_SUCCESS,
+        COLOR_BREAKPOINT
+    };
+
     void debugger::run()
     {
         run_ = true;
 
+        commands_map& commands = vm_.get_commands();
+        commands_map::iterator it;
+        for (it = commands.begin(); it != commands.end(); it++)
+        {
+            std::map<int, command>::iterator it2;
+            for (it2 = it->second.begin(); it2 != it->second.end(); it2++)
+            {
+                lines_cmd_[it2->second.line] = &it2->second;
+            }
+        }
+
         initscr();
 
         start_color();
-        init_pair(1, COLOR_RED, COLOR_BLACK);
-        init_pair(2, COLOR_GREEN, COLOR_BLACK);
+        init_pair(COLOR_TEXT, COLOR_WHITE, COLOR_BLACK);
+        init_pair(COLOR_ERROR, COLOR_RED, COLOR_BLACK);
+        init_pair(COLOR_SUCCESS, COLOR_GREEN, COLOR_BLACK);
+        init_pair(COLOR_BREAKPOINT, COLOR_RED, COLOR_BLACK);
 
         refresh();
 
@@ -60,6 +81,23 @@ namespace tmachine
         case KEY_END:
             vm_step(10000);
             break;
+        case 'b':
+        case 'B':
+        {
+            command& cmd = get_vm().get_current_command();
+            if (cmd.defined) cmd.breakpoint = !cmd.breakpoint;
+            break;
+        }
+        case 'c':
+        case 'C':
+        {
+            int_command_map::iterator it;
+            for (it = lines_cmd_.begin(); it != lines_cmd_.end(); it++)
+            {
+                if (it->second != NULL) it->second->breakpoint = false;
+            }
+            break;
+        }
         case 'q':
         case 'Q':
             run_ = false;
@@ -84,6 +122,8 @@ namespace tmachine
                         executed_commands_.pop_back();
                         return false;
                     }
+
+                    if (vm_.get_current_command().breakpoint) return false;
                 }
                 catch (vm_exception& ex)
                 {
@@ -107,6 +147,8 @@ namespace tmachine
                 vm_.set_cell(vm_.get_cursor(), cmd->symbol);
                 vm_.set_state(cmd->state);
                 step_--;
+
+                if (vm_.get_current_command().breakpoint) return false;
             }
         }
         return true;
@@ -127,6 +169,13 @@ namespace tmachine
         wnd_info_.init();
         wnd_source_.init();
         wnd_trace_.init();
+    }
+
+    command* debugger::get_command_by_line(int line)
+    {
+        int_command_map::iterator it = lines_cmd_.find(line);
+        if (it == lines_cmd_.end()) return NULL;
+        return it->second;
     }
 
     window::~window()
@@ -182,16 +231,24 @@ namespace tmachine
 
         if (debugger_.get_error().size() > 0)
         {
-            wattron(wnd_, COLOR_PAIR(1));
+            wattron(wnd_, COLOR_PAIR(COLOR_ERROR));
             wprintw(wnd_, "  Error: %s", debugger_.get_error().c_str());
-            wattroff(wnd_, COLOR_PAIR(1));
+            wattroff(wnd_, COLOR_PAIR(COLOR_ERROR));
+        }
+
+        command& cmd = debugger_.get_vm().get_current_command();
+        if (cmd.defined && cmd.breakpoint)
+        {
+            wattron(wnd_, COLOR_PAIR(COLOR_ERROR));
+            wprintw(wnd_, "  Breakpoint");
+            wattroff(wnd_, COLOR_PAIR(COLOR_ERROR));
         }
 
         if (debugger_.get_vm().is_stopped())
         {
-            wattron(wnd_, COLOR_PAIR(2));
+            wattron(wnd_, COLOR_PAIR(COLOR_SUCCESS));
             wprintw(wnd_, "  End reached");
-            wattroff(wnd_, COLOR_PAIR(2));
+            wattroff(wnd_, COLOR_PAIR(COLOR_SUCCESS));
         }
         window::draw();
     }
@@ -216,9 +273,23 @@ namespace tmachine
 
         for (int i = 0; i < std::min(height, count); i++)
         {
+            command* lcmd = debugger_.get_command_by_line(start + i + 1);
+            int color = COLOR_TEXT;
+            char sym = ' ';
+
+            if (lcmd != NULL) {
+                if (lcmd->breakpoint)
+                {
+                    sym = 'B';
+                    color = COLOR_BREAKPOINT;
+                }
+                if (lcmd == &cmd) sym = '>';
+            }
+
             mvwprintw(wnd_, 2 + i, 1, "%s", lines_[start+i].c_str());
+            mvwaddch(wnd_, 2 + i, 0, sym | COLOR_PAIR(color));
         }
-        mvwprintw(wnd_, line - start + 1, 0, ">");
+
         window::draw();
     }
 

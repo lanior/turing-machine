@@ -3,6 +3,7 @@
 
 #include <curses.h>
 #include <vector>
+#include <map>
 
 #include "vm.h"
 
@@ -64,6 +65,7 @@ namespace tmachine
         virtual void draw();
     };
 
+    typedef std::map<int, command*> int_command_map;
     class debugger
     {
     public:
@@ -84,6 +86,8 @@ namespace tmachine
             return executed_commands_;
         }
 
+        command* get_command_by_line(int line);
+
     private:
         vm& vm_;
         stripe_window wnd_stripe_;
@@ -92,6 +96,7 @@ namespace tmachine
         trace_window wnd_trace_;
 
         std::vector<command*> executed_commands_;
+        int_command_map lines_cmd_;
         int height_;
         int width_;
         int step_;

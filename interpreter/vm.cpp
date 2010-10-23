@@ -73,7 +73,7 @@ namespace tmachine
             for (it2 = it->second.begin(); it2 != it->second.end(); it2++)
             {
                 const command& cmd = it2->second;
-                if (cmd.action != CA_BREAK)
+                if (cmd.action != CA_STOP)
                 {
                     if (commands_.find(cmd.new_state) == commands_.end())
                     {
@@ -106,7 +106,7 @@ namespace tmachine
         if (!cmd.defined) error("No command can be executed");
 
         set_cell(get_cursor(), cmd.new_symbol);
-        if (cmd.action == CA_BREAK)
+        if (cmd.action == CA_STOP)
         {
             stopped_ = true;
             return true;

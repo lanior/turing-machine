@@ -16,14 +16,15 @@ namespace tmachine
 
     enum command_action
     {
+        CA_NONE,
         CA_MOVE_LEFT,
         CA_MOVE_RIGHT,
-        CA_BREAK,
+        CA_STOP,
     };
 
     struct command
     {
-        command() : defined(false) {}
+        command() : defined(false), breakpoint(false) {}
 
         int state;
         int symbol;
@@ -34,6 +35,7 @@ namespace tmachine
 
         int line;
         bool defined;
+        bool breakpoint;
 
         int get_shift()
         {
@@ -41,8 +43,8 @@ namespace tmachine
             {
                 case CA_MOVE_LEFT:  return -1;
                 case CA_MOVE_RIGHT: return 1;
+                default: return 0;
             }
-            return 0;
         }
     };
 
