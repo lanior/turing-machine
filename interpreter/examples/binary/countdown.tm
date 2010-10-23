@@ -5,7 +5,7 @@ filler =
 # find right border
 0 q1 -> 0 q1 R
 1 q1 -> 1 q1 R
-= q1 -> = q2 L
+= q1 -> = q2 LB
 
 # decrease by one
 1 q2 -> 0 q3 L
