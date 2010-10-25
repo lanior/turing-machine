@@ -1,4 +1,4 @@
-put 11111101
+put 11111101111
 state q1
 filler 0
 
