@@ -3,7 +3,7 @@ state q1
 filler 0
 
 # input: a0b
-# a > 0, b > 0
+# c=a+b, a > 0, b > 0
 
 1 q1 -> 0 q2 R
 
