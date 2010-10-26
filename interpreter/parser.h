@@ -11,8 +11,11 @@ namespace tmachine
     class parser_exception : public std::runtime_error
     {
     public:
-        parser_exception(const std::string& message)
-            : std::runtime_error(message) {}
+        parser_exception(const std::string& message, int line)
+            : std::runtime_error(message), line_(line) {}
+        int line() { return line_; }
+    protected:
+        int line_;
     };
 
     class parser

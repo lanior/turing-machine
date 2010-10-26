@@ -10,8 +10,11 @@ namespace tmachine
     class vm_exception : public std::runtime_error
     {
     public:
-        vm_exception(const std::string& message)
-            : std::runtime_error(message) {}
+        vm_exception(const std::string& message, int line)
+            : std::runtime_error(message), line_(line) {}
+        int line() { return line_; }
+    protected:
+        int line_;
     };
 
     enum command_action
@@ -84,7 +87,7 @@ namespace tmachine
         std::string get_state_name(int state);
 
         void validate();
-        void error(const std::string& message);
+        void error(const std::string& message, int line = -1);
     private:
         std::map<int, char> memory_;
         commands_map commands_;

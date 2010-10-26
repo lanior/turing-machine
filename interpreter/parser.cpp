@@ -123,7 +123,7 @@ namespace tmachine
 
     void parser::error(const std::string& message)
     {
-        throw parser_exception(message);
+        throw parser_exception(message, token_.line);
     }
 }
 

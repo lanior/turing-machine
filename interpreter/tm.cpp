@@ -20,8 +20,29 @@ int main(int argc, char *argv[])
     tmachine::vm vm;
     tmachine::parser parser(lexer, vm);
 
-    parser.parse();
-    vm.validate();
+    try
+    {
+        parser.parse();
+        vm.validate();
+    }
+    catch (tmachine::parser_exception& ex)
+    {
+        std::cerr
+            << "Error on line " << ex.line() << ": " << ex.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+    catch (tmachine::vm_exception& ex)
+    {
+        std::cerr << "Error";
+        if (ex.line() != -1) std::cerr << " on line " << ex.line();
+        std::cerr << ": " << ex.what() << std::endl;
+        return EXIT_FAILURE;
+    }
+    catch (std::runtime_error& ex)
+    {
+        std::cerr << "Error: " << ex.what() << std::endl;
+        return EXIT_FAILURE;
+    }
 
     std::string line;
     std::vector<std::string> lines;

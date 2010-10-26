@@ -81,7 +81,7 @@ namespace tmachine
                         msg += cmd.new_symbol;
                         msg += " ";
                         msg += get_state_name(cmd.new_state);
-                        error(msg);
+                        error(msg, cmd.line);
                     }
                 }
             }
@@ -93,9 +93,9 @@ namespace tmachine
         }
     }
 
-    void vm::error(const std::string& message)
+    void vm::error(const std::string& message, int line)
     {
-        throw vm_exception(message);
+        throw vm_exception(message, line);
     }
 
     bool vm::step()
