@@ -273,9 +273,11 @@ namespace tmachine
 
         for (int i = 0; i < std::min(height, count); i++)
         {
-            command* lcmd = debugger_.get_command_by_line(start + i + 1);
+            int current_line = start + i + 1;
             int color = COLOR_TEXT;
             char sym = ' ';
+
+            command* lcmd = debugger_.get_command_by_line(current_line);
 
             if (lcmd != NULL) {
                 if (lcmd->breakpoint)
@@ -283,7 +285,7 @@ namespace tmachine
                     sym = 'B';
                     color = COLOR_BREAKPOINT;
                 }
-                if (lcmd == &cmd) sym = '>';
+                if (cmd.line == current_line) sym = '>';
             }
 
             mvwprintw(wnd_, 2 + i, 1, "%s", lines_[start+i].c_str());

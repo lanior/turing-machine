@@ -40,7 +40,6 @@ namespace tmachine
     {
         std::string new_symbol, action_str;
         int state, new_state, line;
-
         line = token_.line;
         state = vm_.get_state_id(get_ident());
 
@@ -76,22 +75,31 @@ namespace tmachine
         }
         if (action == CA_NONE) error("No action assigned");
 
-        if (symbol.length() > 1 || new_symbol.length() > 1)
+        std::vector<char> symbols;
+
+        if (symbol.length() == 1) symbols.push_back(symbol[0]);
+        else if (symbol.length() > 2) process_symbol_class(symbol, symbols);
+
+        if (new_symbol == "$$") new_symbol = "\0";
+        if (symbols.size() == 0 || new_symbol.length() > 1)
         {
             error("Symbol should be 1 character long");
         }
 
-        command& cmd = vm_.get_command(symbol[0], state);
-        if (cmd.defined) error("Command is already defined");
+        for (std::size_t i = 0; i < symbols.size(); i++)
+        {
+            command& cmd = vm_.get_command(symbols[i], state);
+            if (cmd.defined) error("Command is already defined");
 
-        cmd.symbol = symbol[0];
-        cmd.state = state;
-        cmd.new_symbol = new_symbol[0];
-        cmd.new_state = new_state;
-        cmd.action = action;
-        cmd.line = line;
-        cmd.breakpoint = breakpoint;
-        cmd.defined = true;
+            cmd.symbol = symbols[i];
+            cmd.state = state;
+            cmd.new_symbol = new_symbol[0] == '\0' ? symbols[i] : new_symbol[0];
+            cmd.new_state = new_state;
+            cmd.action = action;
+            cmd.line = line;
+            cmd.breakpoint = breakpoint;
+            cmd.defined = true;
+        }
     }
 
     void parser::next_token()
@@ -124,6 +132,30 @@ namespace tmachine
     void parser::error(const std::string& message)
     {
         throw parser_exception(message, token_.line);
+    }
+
+    void parser::process_symbol_class(const std::string& sym_class, std::vector<char>& symbols)
+    {
+        std::size_t len = sym_class.length();
+        if (sym_class[0] != '[' || sym_class[len - 1] != ']')
+        {
+            return;
+        }
+
+        for (std::size_t i = 1; i < len - 1; i++)
+        {
+            if (sym_class[i+1] == '-' && i < len - 3)
+            {
+                char c = sym_class[i];
+                while (c <= sym_class[i+2])
+                {
+                    symbols.push_back(c);
+                    c++;
+                }
+                i += 2;
+            }
+            else symbols.push_back(sym_class[i]);
+        }
     }
 }
 

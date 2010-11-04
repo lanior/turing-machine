@@ -2,6 +2,7 @@
 #define TM_PARSER_H
 
 #include <stdexcept>
+#include <vector>
 
 #include "lexer.h"
 #include "vm.h"
@@ -34,6 +35,8 @@ namespace tmachine
         int get_int();
         void next_token();
         void error(const std::string& message);
+
+        void process_symbol_class(const std::string& sym_class, std::vector<char>& symbols);
     };
 }
 
