@@ -72,7 +72,7 @@ namespace tmachine
         debugger(vm& vm, std::vector<std::string>& lines)
             : vm_(vm), wnd_stripe_(0, 0, *this), wnd_info_(0, 4, *this),
               wnd_source_(0, 6, *this, lines),
-              wnd_trace_(22, 6, *this), step_(0) {}
+              wnd_trace_(47, 6, *this), step_(0) {}
         void run();
         bool vm_step(int step);
 

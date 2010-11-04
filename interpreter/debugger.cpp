@@ -76,10 +76,10 @@ namespace tmachine
             vm_step(10);
             break;
         case KEY_HOME:
-            vm_step(-10000);
+            vm_step(-1000000);
             break;
         case KEY_END:
-            vm_step(10000);
+            vm_step(1000000);
             break;
         case 'b':
         case 'B':
@@ -255,7 +255,7 @@ namespace tmachine
 
     void source_window::init()
     {
-        wnd_ = newwin(debugger_.get_height() - y_ - 1, 20, y_, x_);
+        wnd_ = newwin(debugger_.get_height() - y_ - 1, 45, y_, x_);
     }
 
     void source_window::draw()
